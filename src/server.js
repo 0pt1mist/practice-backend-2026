@@ -4,7 +4,7 @@ const cors = require('cors');
 
 const authRoutes = require('./routes/auth');
 const resourceRoutes = require('./routes/resources');
-const bookingRoutes = require('./routes/bookings'); // эьап 3?
+const bookingRoutes = require('./routes/bookings');
 
 const app = express();
 app.use(cors());
