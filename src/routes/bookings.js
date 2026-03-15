@@ -29,6 +29,25 @@ router.post('/', authenticate, async (req, res) => {
   res.status(201).json(booking);
 });
 
+router.get('/my', authenticate, async (req, res) => {
+  const bookings = await prisma.booking.findMany({
+    where: { userId: req.user.id },
+    include: { resource: true }
+  });
+  res.json(bookings);
+});
+
+router.patch('/:id/cancel', authenticate, async (req, res) => {
+  const booking = await prisma.booking.findUnique({ where: { id: Number(req.params.id) } });
+  if (booking.userId !== req.user.id && req.user.role !== 'ADMIN') return res.status(403).send();
+  
+  const updated = await prisma.booking.update({
+    where: { id: Number(req.params.id) },
+    data: { status: 'cancelled' }
+  });
+  res.json(updated);
+});
+
 router.patch('/:id/cancel', authenticate, async (req, res) => {
   const booking = await prisma.booking.findUnique({ where: { id: Number(req.params.id) } });
   

@@ -25,7 +25,7 @@ model User {
 model Resource {
   id          Int       @id @default(autoincrement())
   name        String
-  type        String
+  type        String    // "desk" или "room"
   capacity    Int
   description String?
   bookings    Booking[]
@@ -37,18 +37,19 @@ model Booking {
   startTime  DateTime
   endTime    DateTime
   status     String   @default("confirmed")
-  user       User     @relation(fields: [userId], references: [id])
   userId     Int
-  resource   Resource @relation(fields: [resourceId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
   resourceId Int
+  resource   Resource @relation(fields: [resourceId], references: [id])
 }
 
 model Review {
   id         Int      @id @default(autoincrement())
-  rating     Int
+  rating     Int      // 1-5 звёзд
   comment    String?
-  user       User     @relation(fields: [userId], references: [id])
   userId     Int
-  resource   Resource @relation(fields: [resourceId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
   resourceId Int
+  resource   Resource @relation(fields: [resourceId], references: [id])
+  createdAt  DateTime @default(now())
 }
