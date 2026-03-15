@@ -15,6 +15,23 @@ router.post('/', authenticate, authorize('ADMIN'), async (req, res) => {
     res.json(resource);
 });
 
+router.get('/', async (req, res) => {
+  const { type, minCapacity } = req.query;
+  const resources = await prisma.resource.findMany({
+    where: {
+      type: type || undefined,
+      capacity: minCapacity ? { gte: parseInt(minCapacity) } : undefined
+    },
+    include: { reviews: true }
+  });
+
+  const response = resources.map(r => ({
+    ...r,
+    rating: r.reviews.length ? r.reviews.reduce((a, b) => a + b.rating, 0) / r.reviews.length : 0
+  }));
+  res.json(response);
+});
+
 router.get('/search', async (req, res) => {
   const { start, end } = req.query;
   const startTime = new Date(start);
