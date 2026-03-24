@@ -127,3 +127,39 @@ npm test
 - Проверка прав доступа (Admin vs User).
 - Получение списка ресурсов.
 - Поиск свободных ресурсов.
+
+## Документация эндпоинтов (API Reference)
+
+### 1. Авторизация
+- **POST `/api/auth/register`**
+  - Тело: `{"email", "password", "name", "role"}`
+  - Ответ: `200 OK`, `{"message": "User created"}`
+- **POST `/api/auth/login`**
+  - Тело: `{"email", "password"}`
+  - Ответ: `200 OK`, `{"token": "JWT_HERE"}`
+
+### 2. Ресурсы
+- **GET `/api/resources`**
+  - Query: `type`, `minCapacity`
+  - Ответ: `200 OK`, список объектов с полем `rating`.
+- **GET `/api/resources/search`**
+  - Query: `start`, `end` (ISO формат)
+  - Ответ: список свободных ресурсов.
+- **POST `/api/resources` (ADMIN)**
+  - Auth: Bearer Token
+  - Тело: `{"name", "type", "capacity", "description"}`
+  - Ответ: `201 Created`
+
+### 3. Бронирование
+- **POST `/api/bookings`**
+  - Auth: Bearer Token
+  - Тело: `{"resourceId", "startTime", "endTime"}`
+  - Ответ: `201 Created` или `409 Conflict` (если занято).
+- **PATCH `/api/bookings/:id/cancel`**
+  - Auth: Bearer Token
+  - Ответ: `200 OK`, статус меняется на `cancelled`.
+
+### 4. Отзывы
+- **POST `/api/resources/:id/reviews`**
+  - Тело: `{"rating", "comment"}`
+  - Условие: наличие завершенной брони.
