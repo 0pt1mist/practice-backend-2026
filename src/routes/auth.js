@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { PrismaClient } = require('@prisma/client');
+const { authenticate, authorize } = require('../middleware/auth');
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -29,4 +30,12 @@ router.post('/login', async (req, res) => {
     res.json({ token });
 });
 
+router.get('/users', authenticate, authorize('ADMIN'), async (req, res) => {
+    try {
+        const users = await prisma.user.findMany();
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ error: "Ошибка БД" });
+    }
+});
 module.exports = router;
