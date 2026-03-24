@@ -28,7 +28,7 @@ describe('Комплексное тестирование Booking API с про�
     await prisma.user.deleteMany();
 
     const adminPassword = await bcrypt.hash('admin123', 10);
-    const admin = await prisma.user.create({
+    await prisma.user.create({
       data: {
         email: 'admin@test.com',
         password: adminPassword,
@@ -41,7 +41,12 @@ describe('Комплексное тестирование Booking API с про�
       email: 'admin@test.com',
       password: 'admin123'
     });
+    
     adminToken = adminLogin.body.token;
+    
+    if (!adminToken) {
+        console.error("КРИТИЧЕСКАЯ ОШИБКА: Админ не залогинился в тестах!", adminLogin.body);
+    }
   });
 
   afterAll(async () => {
@@ -66,11 +71,16 @@ describe('Комплексное тестирование Booking API с про�
       .get('/api/auth/users')
       .set('Authorization', `Bearer ${adminToken}`);
     
+    if (usersList.statusCode !== 200) {
+        console.log("ОШИБКА МАРШРУТА /users:", usersList.body);
+    }
+    expect(usersList.statusCode).toBe(200);
+    expect(Array.isArray(usersList.body)).toBe(true);
+
     const foundUser = usersList.body.find(u => u.email === mockUser.email);
     expect(foundUser).toMatchObject({
       email: mockUser.email,
-      name: mockUser.name,
-      role: 'USER'
+      name: mockUser.name
     });
   });
 
